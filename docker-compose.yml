@@ -1,0 +1,61 @@
+version: '3.1'
+services:
+    app:
+        image: chatbot-app:latest
+        container_name: chatbot-app
+        environment:
+            - MODE=DEV
+            - APP_IP=${IP}
+            - APP_PORT=${APP_PORT}
+            - UI_IP=${IP}
+            - UI_PORT=${UI_PORT}
+            - MYSQL_LOGIN_PWD=${MYSQL_LOGIN_PWD}
+            - LOCALHOST=127.0.0.1
+        ports:
+            - ${APP_PORT}:80
+        restart: always
+        networks: 
+            - mynet
+        volumes: 
+            - ${PWD}/app:/app/app
+        depends_on:
+            - mysql
+
+    # ui-manage:
+    #     image: chatbot-ui-manage:latest
+    #     container_name: chatbot-ui-manage
+    #     ports:
+    #         - ${UI_PORT}:80
+    #     restart: always
+    #     environment:
+    #         - REACT_APP_MODE=DEV
+    #         - REACT_APP_SITE=${SITE}
+    #         - REACT_APP_APP_IP=${IP}
+    #         - REACT_APP_APP_PORT=${APP_PORT}
+    #         - REACT_APP_UI_IP=${IP}
+    #         - REACT_APP_UI_PORT=${UI_PORT}
+    #     networks: 
+    #         - mynet
+    #     volumes:
+    #         - ${PWD}/chatbot-ui-manage:/app/app
+
+    mysql:
+        image: mysql:latest
+        container_name: chatbot-mysql
+        command: --default-authentication-plugin=mysql_native_password
+        ports:
+            - ${MYSQL_PORT}:3306
+        volumes:
+            - mysql_mount:/var/lib/mysql
+        restart: always
+        environment:
+            MYSQL_ROOT_PASSWORD: ${MYSQL_LOGIN_PWD}
+        networks: 
+            - mynet
+
+
+networks:
+    mynet:
+        # external: True
+volumes:
+    mysql_mount:
